@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Treemap</title>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css" />
+    <script type="text/javascript" src="../../lib/d3-4.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+        function treemapChart() {
+            var _chart = {};
+
+            var _width = 1400,
+                _height = 600,
+                _colors = d3.scaleOrdinal(d3.schemeCategory20c),
+                _svg,
+                _nodes,
+                _valueAccessor,
+                _treeMap,
+                _bodyG;
+
+            _chart.render = function () {
+                if (!_svg) {
+                    _svg = d3
+                        .select("body")
+                        .append("svg")
+                        .attr("height", _height)
+                        .attr("width", _width);
+                }
+
+                renderBody(_svg);
+            };
+
+            function renderBody(svg) {
+                if (!_bodyG) {
+                    _bodyG = svg.append("g")
+                        .attr("class", "body");
+
+                    _treeMap = d3.treemap()
+                        .size([_width, _height])
+                        .round(true)
+                        .padding(1);
+                }
+
+
+                let root = d3.hierarchy(_nodes)
+                    .sum(_valueAccessor)
+                    .sort((a, b) => b.value - a.value);
+
+                _treeMap(root);
+
+                var cells = _bodyG.selectAll("g")
+                    .data(root.leaves(), function (d) {
+                        return d.data.name;
+                    }); // <-D
+
+                renderCells(cells);
+
+            }
+
+            function renderCells(cells) {
+                let cellEnter = cells.enter().append("g")
+                    .merge(cells)
+                    .attr("class", "cell")
+                    .attr("transform", (d) => `translate(${d.x0}, ${d.y0})`);
+
+                renderRect(cellEnter, cells);
+                renderText(cellEnter, cells);
+            }
+
+            function renderRect(cellEnter, cells) {
+                cellEnter.append("rect");
+                cellEnter.merge(cells)
+                    .transition()
+                    .select("rect")
+                    .attr("width", (d) => d.x1 - d.x0)
+                    .attr("height", (d) => d.y1 - d.y0)
+                    .style("fill", (d) => _colors(d.parent.data.name))
+            }
+
+            function renderText(cellEnter, cells) {
+                cellEnter.append("text");
+                cellEnter.merge(cells)
+                    .select("text")
+                    .style("font-size", 12)
+                    .attr("x", (d) => (d.x1 - d.x0) / 2)
+                    .attr("y", (d) => (d.y1 - d.y0) / 2)
+                    .attr("text-anchor", "middle")
+                    .text((d) => d.data.name)
+                    .style("opacity", function (d) {
+                        console.log(d3.select(this), d)
+                        d.w = this.getComputedTextLength();
+                        return d.w < (d.x1 - d.x0) ? 1 : 0.5;
+                    })
+
+            }
+
+            _chart.width = function (w) {
+                if (!arguments.length) return _width;
+                _width = w;
+                return _chart;
+            };
+
+            _chart.height = function (h) {
+                if (!arguments.length) return _height;
+                _height = h;
+                return _chart;
+            };
+
+            _chart.colors = function (c) {
+                if (!arguments.length) return _colors;
+                _colors = c;
+                return _chart;
+            };
+
+            _chart.nodes = function (n) {
+                if (!arguments.length) return _nodes;
+                _nodes = n;
+                return _chart;
+            };
+
+            _chart.valueAccessor = function (fn) {
+                if (!arguments.length) return _valueAccessor;
+                _valueAccessor = fn;
+                return _chart;
+            };
+
+            return _chart;
+        }
+
+        var chart = treemapChart();
+
+        function flare() {
+            d3.json("./flare.json", function (nodes) {
+                chart
+                    .nodes(nodes)
+                    .valueAccessor(size)
+                    .render();
+            });
+        }
+
+        function size(d) {
+            return d.size;
+        }
+
+        function count() {
+            return 1;
+        }
+
+        function flip(chart) {
+            chart.valueAccessor(chart.valueAccessor() == size ? count : size).render();
+        }
+    </script>
+
+    <div class="control-group">
+        <button onclick="flare()">Render Flare</button>
+        <button onclick="flip(chart)">Flip Value vs. Count</button>
+    </div>
+</body>
+
+</html>

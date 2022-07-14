@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Bar Chart</title>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css" />
+    <script type="text/javascript" src="../../lib/d3-4.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+        let numberOfDataPoint = 31,
+            data = [];
+
+        const randomData = () => Math.random() * 9;
+
+        data = d3.range(numberOfDataPoint).map(function (i) {
+            return {
+                x: i,
+                y: randomData()
+            };
+        });
+
+        const barChart = () => {
+            let _width = 600,
+                _height = 250,
+                _margin = {
+                    top: 30,
+                    left: 30,
+                    right: 30,
+                    bottom: 30
+                },
+                _x, _y,
+                _data = [],
+                _colors = d3.scaleOrdinal(d3.schemeCategory10),
+                _svg, _bodyG;
+
+            const quadrantWidth = function () {
+                return _width - _margin.left - _margin.right;
+            };
+
+            const quadrantHeight = function () {
+                return _height - _margin.bottom - _margin.top;
+            };
+
+            const xStart = function () {
+                return _margin.left;
+            };
+
+            const yStart = function () {
+                return _height - _margin.bottom;
+            };
+
+            const xEnd = function () {
+                return _width - _margin.right;
+            };
+
+            const yEnd = function () {
+                return _margin.top;
+            };
+
+            const renderAxes = (svg) => {
+                let axesG = svg.append("g")
+                    .attr("class", "axes");
+
+                let xAxis = d3.axisBottom()
+                    .scale(_x.range([0, quadrantWidth()]));
+
+                let yAxis = d3.axisLeft()
+                    .scale(_y.range([quadrantHeight(), 0]));
+
+                axesG.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(${xStart()}, ${yStart()})`)
+                    .call(xAxis);
+                axesG.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(${xStart()}, ${yEnd()})`)
+                    .call(yAxis);
+            };
+
+            const renderBars = () => {
+                let padding = 2;
+                let bars = _bodyG.selectAll("rect.bar")
+                    .data(_data);
+
+                bars.enter()
+                    .append("rect")
+                    .merge(bars)
+                    .attr("class", "bar")
+                    .transition()
+                    .attr("x", function (d) {
+                        return _x(d.x);
+                    })
+                    .attr("y", function (d) {
+                        return _y(d.y) - _margin.bottom;
+                    })
+                    .attr("height", function (d) {
+                        return yStart() - _y(d.y)
+                    })
+                    .attr("width", function (d) {
+                        return Math.floor(quadrantWidth() / _data.length) - padding;
+                    })
+
+            };
+
+            const renderBody = (svg) => {
+                if (!_bodyG) {
+                    _bodyG = svg.append("g")
+                        .attr("class", "body")
+                        .attr("transform", `translate(${xStart()},${yEnd()})`)
+                }
+
+                renderBars();
+            };
+
+
+
+            return {
+                render: function () {
+                    if (!_svg) {
+                        _svg = d3.select("body").append("svg")
+                            .attr("height", _height)
+                            .attr("width", _width);
+
+                        renderAxes(_svg);
+                    }
+
+                    renderBody(_svg);
+                },
+
+                x: function (x) {
+                    if (!arguments.length) return _x;
+                    _x = x;
+                    return this;
+                },
+
+                y: function (y) {
+                    if (!arguments.length) return _y;
+                    _y = y;
+                    return this;
+                },
+
+                setSeries: function (series) {
+                    _data = series;
+                    return this;
+                },
+
+                width: function (w) {
+                    if (!arguments.length) return _width;
+                    _width = w;
+                    return this;
+                },
+
+                height: function (h) {
+                    if (!arguments.length) return _height;
+                    _height = h;
+                    return this;
+                },
+
+                margins: function (m) {
+                    if (!arguments.length) return _margin;
+                    _margin = m;
+                    return this;
+                },
+
+                colors: function (c) {
+                    if (!arguments.length) return _colors;
+                    _colors = c;
+                    return this;
+                }
+
+            }
+        };
+
+        const chart = barChart()
+            .x(d3.scaleLinear().domain([-1, 32]))
+            .y(d3.scaleLinear().domain([0, 10]))
+
+        chart.setSeries(data);
+
+        chart.render();
+    </script>
+
+    <div class="control-group"><button onclick="update()">Update</button></div>
+</body>
+
+</html>

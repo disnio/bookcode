@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Tree</title>
+        <link rel="stylesheet" type="text/css" href="../../css/styles.css" />
+        <script type="text/javascript" src="../../lib/d3-4.js"></script>
+        <style type="text/css">
+            .node circle {
+                cursor: pointer;
+                fill: #fff;
+                stroke: steelblue;
+                stroke-width: 1.5px;
+            }
+
+            .node text {
+                font-size: 11px;
+            }
+
+            path.link {
+                fill: none;
+                stroke: #ccc;
+                stroke-width: 1.5px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="text/javascript">
+            function tree() {
+                var _chart = {};
+
+                var _width = 1300,
+                    _height = 800,
+                    _margins = {
+                        top: 30,
+                        left: 120,
+                        right: 30,
+                        bottom: 30
+                    },
+                    _svg,
+                    _nodes,
+                    _i = 0,
+                    _duration = 300,
+                    _bodyG,
+                    _root;
+
+                _chart.render = function() {
+                    if (!_svg) {
+                        _svg = d3
+                            .select("body")
+                            .append("svg")
+                            .attr("height", _height)
+                            .attr("width", _width);
+                    }
+
+                    renderBody(_svg);
+                };
+
+                function renderBody(svg) {
+                    if (!_bodyG) {
+                        _bodyG = svg
+                            .append("g")
+                            .attr("class", "body")
+                            .attr("transform", function(d) {
+                                return "translate(" + _margins.left + "," + _margins.top + ")";
+                            });
+                    }
+
+                    // hierarchy
+                    _root = d3.hierarchy(_nodes);
+
+                    console.log(_root);
+                    render(_root);
+                }
+
+                const render = function(root) {
+                    let tree = d3
+                        .tree()
+                        .size([_height - _margins.top - _margins.bottom, _width - _margins.left - _margins.right]);
+                    // 树结构数据
+                    tree(root);
+
+                    renderNodes(root);
+                    renderLinks(root);
+                };
+
+                const renderNodes = root => {
+                    // descendants
+                    let nodes = root.descendants();
+
+                    let nodeElement = _bodyG.selectAll("g.node").data(nodes, function(d) {
+                        return d.id || (d.id = ++_i);
+                    });
+                    // new base svg dom nodes
+                    let nodeEnter = nodeElement
+                        .enter()
+                        .append("g")
+                        .attr("class", "node")
+                        .attr("transform", d => `translate(${d.y}, ${d.x})`);
+
+                    nodeEnter.append("circle").attr("r", 4);
+
+                    // merge new and old dom nodes equal data length
+                    let nodeUpdate = nodeEnter
+                        .merge(nodeElement)
+                        .transition()
+                        .duration(_duration)
+                        .attr("transform", d => `translate(${d.y}, ${d.x})`);
+
+                    nodeUpdate.select("circle").style("fill", d => (d._children ? "lightsteelblue" : "#fff"));
+
+                    // delete unnecessary
+                    let nodeExit = nodeElement
+                        .exit()
+                        .transition()
+                        .duration(_duration)
+                        .attr("transform", d => `translate(${d.y}, ${d.x})`)
+                        .remove();
+
+                    nodeExit
+                        .select("circle")
+                        .attr("r", 1e-6)
+                        .remove();
+
+                    renderLabels(nodeEnter, nodeUpdate, nodeExit);
+                };
+
+                const renderLabels = (nodeEnter, nodeUpdate, nodeExit) => {
+                    nodeEnter
+                        .append("text")
+                        .attr("x", d => (d.children || d._children ? -10 : 10))
+                        .attr("dy", ".35em")
+                        .attr("text-anchor", d => (d.children || d._children ? "end" : "start"))
+                        .text(d => d.data.name)
+                        .style("fill-opacity", 1e-6);
+
+                    nodeUpdate.select("text").style("fill-opacity", 1);
+
+                    nodeExit
+                        .select("text")
+                        .style("fill-opacity", 1e-6)
+                        .remove();
+                };
+
+                const renderLinks = root => {
+                    let nodes = root.descendants().slice(1);
+                    let link = _bodyG.selectAll("path.link").data(nodes, d => d.id || (d.id = ++_i));
+
+                    link.enter()
+                        .insert("path", "g")
+                        .attr("class", "link")
+                        .merge(link)
+                        .transition()
+                        .duration(_duration)
+                        .attr("d", d => generateLinkPath(d, d.parent));
+
+                    link.exit().remove();
+                };
+
+                const generateLinkPath = (source, target) => {
+                    let path = d3.path();
+                    path.moveTo(target.y, target.x);
+                    path.bezierCurveTo(
+                        (target.y + source.y) / 2,
+                        target.x,
+                        (target.y + source.y) / 2,
+                        source.x,
+                        source.y,
+                        source.x
+                    );
+
+                    return path.toString();
+                };
+
+                _chart.width = function(w) {
+                    if (!arguments.length) return _width;
+                    _width = w;
+                    return _chart;
+                };
+
+                _chart.height = function(h) {
+                    if (!arguments.length) return _height;
+                    _height = h;
+                    return _chart;
+                };
+
+                _chart.margins = function(m) {
+                    if (!arguments.length) return _margins;
+                    _margins = m;
+                    return _chart;
+                };
+
+                _chart.nodes = function(n) {
+                    if (!arguments.length) return _nodes;
+                    _nodes = n;
+                    return _chart;
+                };
+
+                return _chart;
+            }
+
+            var chart = tree();
+
+            function flare() {
+                d3.json("../../data/flare.json", function(nodes) {
+                    nodes.children = [].slice.call(nodes.children, 0, 5);
+                    chart.nodes(nodes).render();
+                });
+            }
+        </script>
+
+        <div class="control-group"><button onclick="flare()">Render Flare</button></div>
+    </body>
+</html>

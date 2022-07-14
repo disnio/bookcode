@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>Array as Data</title>
+        <link rel="stylesheet" type="text/css" href="../../css/styles.css" />
+        <script type="text/javascript" src="../../lib/d3.js"></script>
+    </head>
+
+    <body>
+        <script type="text/javascript">
+            var data = [10, 15, 30, 50, 80, 65, 55, 30, 20, 10, 8]; // <- A
+
+            function render(data) {
+                // <- B
+                var t = d3.transition().duration(2750);
+
+                var bars = d3
+                    .select("body")
+                    .selectAll("div.h-bar") // <- C
+                    .data(data, function (d) {
+                        return d;
+                    });
+
+                // Enter
+                var ent = bars.enter(); // <- E
+
+                ent.append("div") // <- F
+                    .attr("class", "h-bar") // <- G
+                    .merge(bars) // Enter + Update <- H
+                    .transition(t)
+                    .style("width", function (d) {
+                        console.log(d)
+                        return d * 3 + "px"; // <- I
+                    })
+                    .text(function (d) {
+                        return d; // <- J
+                    });
+
+                // Exit
+                var ext = bars.exit(); // <- K
+                ext.attr("class", "remove")
+                    .transition(t)
+                    // .style("fill-opacity", 1e-6)
+                    .remove();
+
+            }
+
+            setInterval(function () {
+                // <- L
+                data.shift();
+                data.push(Math.round(Math.random() * 100));
+
+                console.log(data)
+                render(data);
+            }, 2500);
+
+            render(data);
+        </script>
+    </body>
+
+</html>
