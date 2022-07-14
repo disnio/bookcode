@@ -1,0 +1,16 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Selection对象的collapseToStart方法的使用示例</title>  
+<script type="text/javascript">
+function unSelect() {
+    var selection = window.getSelection ();
+    selection.collapseToStart ();
+}
+</script>
+</head>
+<body>
+<div onmouseup="unSelect()" contenteditable="true" style="width:400px; background-color:#e0f0d0;">
+示例文字
+</div>
+</body>

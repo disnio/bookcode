@@ -1,0 +1,14 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Selection对象的deleteFromDocument方法的使用示例</title> 
+<script type="text/javascript">
+function RemoveSelection () {
+    var selection = window.getSelection ();
+    selection.deleteFromDocument ();
+}
+</script>
+</head>
+<body onmouseup="RemoveSelection ();">
+示例文字
+</body>

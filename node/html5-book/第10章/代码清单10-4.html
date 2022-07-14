@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html> 
+<html>   
+<head>     
+<meta charset="utf-8">
+<title>创建及下载二进制文件</title>   
+<script>
+//创建及下载二进制文件
+function BlobBuilder_test(){
+    var text = document.getElementById("text").value;
+    var blobBuilder;
+    //创建BlobBuilder对象
+    //如果访问页面的浏览器为Firefox浏览器
+    if ("MozBlobBuilder" in window) { 
+        blobBuilder = new MozBlobBuilder();创建MozBlobBuilder对象
+    }
+    //如果访问页面的浏览器为Chrome浏览器
+    else if ("WebKitBlobBuilder" in window) { 
+        blobBuilder = new WebKitBlobBuilder();//创建WebKitBlobBuilder对象
+    }
+
+    //向BlobBuilder对象中追加数据
+    blobBuilder.append(text);
+    var a = document.createElement("a");
+    var label = document.createTextNode("下载");
+    var result = document.getElementById("result");
+
+    //通过createObjectURL方法创建文字链接
+    if (window.URL) {
+        result.innerHTML = '<a href="' +window.URL.createObjectURL(blobBuilder.getBlob()) + '" target="_blank">文件下载</a>';
+    }
+    else if (window.webkitURL) {
+        result.innerHTML = '<a href="' +window.webkitURL.createObjectURL(blobBuilder.getBlob()) +'" target="_blank">文件下载</a>';
+    }
+
+}
+</script>
+</head>  
+<body>     
+<textarea id="text" placeholder="请输入一些文字"></textarea><br />
+<button id="btndownload" onclick="BlobBuilder_test()">创建及下载二进制文件
+</button>  
+<output id="result"></output>  
+</body> 
+</html>

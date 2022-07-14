@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Range对象的createContextualFragment方法的使用示例</title>  
+<script type="text/javascript">
+function InsertHtmlTxt () {
+    var htmlTxt = "<button onclick='alert (\"你好\");'>动态按钮</button>";
+    var div = document.getElementById ("myDiv");
+    var rangeObj = document.createRange ();
+    var documentFragment = rangeObj.createContextualFragment (htmlTxt);
+    div.insertBefore(documentFragment, div.firstChild);
+}
+</script>
+</head>
+<body>
+<div id="myDiv" style="background:yellow;">
+示例文字
+</div>
+<button onclick="InsertHtmlTxt ();">在div元素中动态插入按钮</button>
+</body>

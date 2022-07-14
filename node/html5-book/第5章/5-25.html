@@ -1,0 +1,16 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Selection对象的toString方法的使用示例</title> 
+<script type="text/javascript">
+function GetSelectedText () {
+    var selRange = window.getSelection ();
+    alert (selRange.toString ());
+}
+</script>
+</head>
+<body>
+<div>请选取div元素中的<b>全部</b>或<i>部分</i>内容</div>
+<br />
+<button onclick="GetSelectedText ();">显示内容</button>
+</body>

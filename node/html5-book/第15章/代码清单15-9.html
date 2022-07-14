@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>	
+<head>		
+<title>播放节奏音频</title>	
+<script src="BufferLoader.js"></script>	
+<script>    
+var SOURCES = [];
+var BUFFERS = {};
+var context = null;
+var BUFFERS_TO_LOAD = {
+    kick: 'kick.wav',
+    snare: 'snare.wav',
+    hihat: 'hihat.wav'
+};          
+try {
+    context = new webkitAudioContext();
+}
+catch(e) {
+    alert("您的浏览器不支持Web Audio API");
+}   		    
+function loadBuffers() {
+    var names = [];
+    var paths = [];
+    for (var name in BUFFERS_TO_LOAD) {
+        var path = BUFFERS_TO_LOAD[name];
+        names.push(name);
+        paths.push(path);
+    }
+    bufferLoader = new BufferLoader(context, paths, function(bufferList) {
+        for (var i = 0; i < bufferList.length; i++) {
+            var buffer = bufferList[i];
+            var name = names[i];
+            BUFFERS[name] = buffer;
+        }
+    });
+    bufferLoader.load();
+}	
+function play(){
+    var kick = BUFFERS.kick;
+    var snare = BUFFERS.snare;
+    var hihat = BUFFERS.hihat;
+
+    //从当前时间播放100毫秒
+    var startTime = context.currentTime + 0.100;
+    var tempo = 80; //每分钟80拍
+    var eighthNoteTime = (60 / tempo) / 2;
+
+    //播放两次
+    for (var bar = 0; bar < 2; bar++) {
+        var time = startTime + bar * 8 * eighthNoteTime;
+        // Play the bass (kick) drum on beats 1, 5
+        playSound(kick, time);
+        playSound(kick, time + 4 * eighthNoteTime);
+
+        // Play the snare drum on beats 3, 7
+        playSound(snare, time + 2 * eighthNoteTime);
+        playSound(snare, time + 6 * eighthNoteTime);
+
+        // Play the hi-hat every eighthh note.
+        for (var i = 0; i < 8; ++i) {
+            playSound(hihat, time + i * eighthNoteTime);
+        }
+    }
+}
+function playSound(buffer, time) {
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.noteOn(time);
+}						    
+</script>
+</head>	
+<body onload="loadBuffers()">	
+<input type="button" onclick="play()" value="播放"/>
+</body>
+</html>
+

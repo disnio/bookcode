@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Selection对象的extend方法的使用示例</title> 
+<script type="text/javascript">
+function ExtendToSentence () {
+    var selection = window.getSelection ();
+    if (!selection.isCollapsed) {
+        //如果选取内容在一个文字节点内
+        if (selection.focusNode.nodeType == Node.TEXT_NODE) {
+            var selRange = selection.getRangeAt (0);
+            //如果用户鼠标反向选取页面内容
+            if (selRange.startContainer == selection.focusNode && selRange.startOffset == selection.focusOffset) {
+                selection.extend (selection.focusNode, 0);
+            }
+            //如果用户鼠标正向选取页面内容
+            else {
+                selection.extend (selection.focusNode, selection.focusNode.textContent.length);
+            }
+        }
+    }
+}
+</script>
+</head>
+<body>
+    <div onmouseup="ExtendToSentence ()" contenteditable="true" style="width:400px; background-color:#e0f0d0;">
+        <div>示例文字</div>
+    </div>
+</body>

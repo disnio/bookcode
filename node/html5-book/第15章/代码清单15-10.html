@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>	
+<head>		
+<title>控制音量</title>	
+<script src="BufferLoader.js"></script>	
+<script>   
+var context; 
+var gainNode = null;
+var source;
+var BUFFERS = {};
+var context = null;
+var playing=false;
+var BUFFERS_TO_LOAD = {
+    techno: 'techno.mp3'
+};          
+try {
+    context = new webkitAudioContext();
+}
+catch(e) {
+    alert("您的浏览器不支持Web Audio API");
+}   		    
+function loadBuffers() {
+    var names = [];
+    var paths = [];
+    for (var name in BUFFERS_TO_LOAD) {
+        var path = BUFFERS_TO_LOAD[name];
+        names.push(name);
+        paths.push(path);
+    }
+    bufferLoader = new BufferLoader(context, paths, function(bufferList) {
+        for (var i = 0; i < bufferList.length; i++) {
+            var buffer = bufferList[i];
+            var name = names[i];
+            BUFFERS[name] = buffer;
+        }
+    });
+    bufferLoader.load();
+}  		    
+function play() {
+    gainNode = context.createGainNode();
+    source = context.createBufferSource();
+    source.buffer = BUFFERS.techno;
+    source.connect(this.gainNode);
+    this.gainNode.connect(context.destination);
+    //开始循环播放
+    source.loop = true;
+    playing=true;
+    source.noteOn(0);
+};	
+function changeVolume(element) {
+    var volume = element.value;
+    var fraction = parseInt(element.value) / parseInt(element.max);
+    //我们改用一个x*x曲线 (x平方值)，因为简单的线性值的听觉效果并不理想
+    gainNode.gain.value = fraction * fraction;
+};	
+function stop() {
+    source.noteOff(0);
+};	
+function toggle(button) {
+    if(playing)
+    {
+        stop();
+        playing=false;
+        button.value="播放";
+    }
+    else
+    {
+        play();
+        playing=true;
+        button.value="暂停";
+    }
+};			    
+</script>
+</head>	
+<body onload="loadBuffers()">	
+<input type="button" onclick="toggle(this);" value="播放"/>
+音量: <input type="range" min="0" max="100" value="100" onchange="changeVolume(this);" />
+</body>
+</html>
+

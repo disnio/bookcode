@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>	
+<head>		
+<title>对音频使用滤波处理</title>	
+<script src="BufferLoader.js"></script>	
+<script>   
+var playing=false;
+var source;
+var BUFFERS = {};
+var context = null;
+var BUFFERS_TO_LOAD = {
+    techno: 'techno.mp3'
+};          
+try {
+    context = new webkitAudioContext();
+}
+catch(e) {
+    alert("您的浏览器不支持Web Audio API");
+}   		    
+function loadBuffers() {
+    var names = [];
+    var paths = [];
+    for (var name in BUFFERS_TO_LOAD) {
+        var path = BUFFERS_TO_LOAD[name];
+        names.push(name);
+        paths.push(path);
+    }
+    bufferLoader = new BufferLoader(context, paths, function(bufferList) {
+        for (var i = 0; i < bufferList.length; i++) {
+            var buffer = bufferList[i];
+            var name = names[i];
+            BUFFERS[name] = buffer;
+            document.getElementById("btnPlay").disabled=false;
+        }
+    });
+    bufferLoader.load();
+    
+}  		    
+function play() {
+    source = context.createBufferSource();    
+    source.buffer =BUFFERS.techno ;
+    //创建BiquadFilterNode对象
+    var filter = context.createBiquadFilter();
+    filter.type = 0; //使用低通滤波方式
+    filter.frequency.value = 5000;//指定低通滤波的临界值频率
+    //将声音源与BiquadFilterNode对象连接，
+    source.connect(filter);
+    //将BiquadFilterNode对象与AudioContext对象的destination属性值（代表音频播放设备）相连接
+    filter.connect(context.destination);
+    //播放音频
+    source.noteOn(0);
+    //指定循环播放
+    source.loop = true;
+};
+function stop() {
+    source.noteOff(0);
+};	
+function toggle(button) {
+    if(playing)
+    {
+        stop();
+        playing=false;
+        button.value="播放";
+    }
+    else
+    {
+        play();
+        playing=true;
+        button.value="停止";
+    }
+};			    
+</script>
+</head>	
+<body onload="loadBuffers()">	
+<input type="button" id="btnPlay" onclick="toggle(this);" value="播放" disabled/>
+</body>
+</html>
+

@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>queryCommandState方法的使用示例</title> 
+<script type="text/javascript">
+function SetToBold () {
+    var state = document.queryCommandState ("bold");
+    switch (state) {
+        case true:
+            alert ("粗体格式将被去除。");
+                break;
+            case false:
+                alert ("选取文字将变为粗体文字。");
+                break;
+    }
+    document.execCommand ('bold', false, null);
+}
+</script>
+</head>
+<body>
+<div contenteditable="true">示例文字</div>
+<button onclick="SetToBold ();">测试bold命令的状态</button>
+</body>

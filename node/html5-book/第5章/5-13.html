@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Range对象的comparePoint方法的使用示例</title>
+<script type="text/javascript">
+function TestPlacement () {
+    var secondText = document.getElementById ("secondText");
+    var selection = document.getSelection ();
+    var secondTextRange = document.createRange ();
+    secondTextRange.selectNodeContents (secondText.firstChild);                
+    var placement = secondTextRange.comparePoint (selection.focusNode, selection.focusOffset);
+    switch (placement) {
+        case -1:
+            alert ("鼠标左键单击点在粗体文字之前。");
+            break;
+        case 0:
+            alert ("鼠标左键单击点在粗体文字之中。");
+            break;
+        case 1:
+            alert ("鼠标左键单击点在粗体文字之后。");
+            break;
+   };
+}
+</script>
+</head>
+<body>
+请用鼠标左键单击以下文字：<br />
+<div contenteditable="true" onmouseup="TestPlacement ()" style="background-color:#d0e0c0">
+    示例文字1<br />
+    <span id="secondText" style="font-weight:bold">示例文字2</span><br />
+    示例文字3
+</div>
+</body>
+
+

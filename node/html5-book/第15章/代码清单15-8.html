@@ -1,0 +1,41 @@
+﻿<html>
+<head>
+<title>BufferLoader类的使用示例</title>
+<script src="BufferLoader.js"></script>
+<script type="text/javascript">
+var context;
+function loadSound() {    
+    var bufferLoader;
+    context = new webkitAudioContext();
+
+    bufferLoader = new BufferLoader(
+        context,
+        [
+            'br-jam-loop.wav',
+            'laughter.wav',
+        ],
+        finishedLoading
+    );
+    bufferLoader.load();
+}
+function onError(e){
+    console.log(e);
+}
+function finishedLoading(bufferList) {
+    //创建两个声音源并且同时播放
+    var source1 = context.createBufferSource();
+    var source2 = context.createBufferSource();
+    source1.buffer = bufferList[0];
+    source2.buffer = bufferList[1];
+
+    source1.connect(context.destination);
+    source2.connect(context.destination);
+    source1.noteOn(0);
+    source2.noteOn(0);
+}
+</script>
+</head>
+<body>
+<button onclick="loadSound()">加载声音</button>
+</body>
+</html>

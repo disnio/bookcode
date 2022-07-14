@@ -1,0 +1,16 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Selection对象的selectAllChildren方法的使用示例</title> 
+<script type="text/javascript">
+function SelectContents () {
+    var elemToSelect = document.getElementById ("myDiv");
+    var selection = window.getSelection ();
+    selection.selectAllChildren (elemToSelect);
+}
+</script>
+</head>
+<body>
+    <button onclick="SelectContents ();">选取元素</button>
+    <div id="myDiv">单击“<b>选取元素</b>”按钮将选取<i>div元素</i>中的全部文字。</div>
+</body>

@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>queryCommandSupported方法的使用示例</title> 
+<script type="text/javascript">
+function TestCommands () {
+    if (document.queryCommandSupported ("myCommand")) {
+        alert ("当前浏览器中能够运行'myCommand'命令");
+    }
+    else {
+        alert ("当前浏览器中不能运行'myCommand'命令");
+    }
+    if (document.queryCommandSupported ("bold")) {
+        alert ("当前浏览器中能够运行'bold'命令");
+    }
+    else {
+        alert ("当前浏览器中不能运行'bold'命令");
+    }
+}
+</script>
+</head>
+<body>
+    <button onclick="TestCommands ();">测试</button>
+</body>

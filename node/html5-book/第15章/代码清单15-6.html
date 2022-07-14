@@ -1,0 +1,31 @@
+﻿<html>
+<head>
+<title>获取服务器端的音频数据</title>
+<script type="text/javascript">
+var audioBuffer = null;
+var context = new webkitAudioContext();
+function loadSound() {
+    var request = new XMLHttpRequest();
+    request.open('GET','crash.mp3', true);
+    request.responseType = 'arraybuffer';
+
+    //加载音频数据
+    request.onload = function() {
+        context.decodeAudioData(request.response, function(buffer) {
+            var source = context.createBufferSource(); //创建一个声音源
+            source.buffer = buffer;                    //设置声音源需要播放的声音
+            source.connect(context.destination);       //把声音源连接到AudioContext上下文对象的目的地（即音频播放设备）
+            source.noteOn(0);                          //播放声音
+        }, onError);
+    }
+    request.send();
+}
+function onError(e){
+    console.log(e);
+}
+</script>
+</head>
+<body>
+<button onclick="loadSound()">加载声音</button>
+</body>
+</html>

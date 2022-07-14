@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Range对象的insertNode方法的使用示例</title>
+<script type="text/javascript">
+function MoveButton () {
+    var button= document.getElementById ("button");
+    var selection = document.getSelection ();
+    if (selection.rangeCount > 0) {
+        var range = selection.getRangeAt (0);
+        range.insertNode (button);
+    }
+}
+</script>
+</head>
+<body>
+<div onmouseup="MoveButton ()" style="width:400px; background-color:#e0f0d0;">
+代码清单5-9为一个Range对象的insertNode方法的使用示例，示例页面中具有一个div元素与一个按钮，div元素中显示一些示例文字，当用户鼠标左键在div元素中被按下时，该按钮将被移动到鼠标左键按下的地方。
+</div>
+<button id="button">按钮</button>
+</body>

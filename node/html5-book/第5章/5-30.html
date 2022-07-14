@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>queryCommandEnabled方法的使用示例</title>
+<script type="text/javascript">
+function SetToBold () {
+    if (document.queryCommandEnabled("bold")) {
+        document.execCommand ('bold', false, null);
+    }
+    else {
+        alert ("请选取一些文字");
+    }
+}
+</script>
+</head>
+<body>
+<div contenteditable="true">示例文字</div>
+<button onclick="SetToBold();">切换文字格式</button>
+</body>

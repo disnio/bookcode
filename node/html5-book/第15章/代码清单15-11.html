@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>	
+<head>		
+<title>两钟声音的曲线式交叉混合</title>	
+<script src="BufferLoader.js"></script>	
+<script>   
+var gainNode = null;
+var ctl1;
+var ctl2;
+var BUFFERS = {};
+var context = null;
+var playing=false;
+var BUFFERS_TO_LOAD = {
+    drum: 'drum.wav',
+    organ: 'organ.wav'
+};          
+try {
+    context = new webkitAudioContext();
+}
+catch(e) {
+    alert("您的浏览器不支持Web Audio API");
+}   		    
+function loadBuffers() {
+    var names = [];
+    var paths = [];
+    for (var name in BUFFERS_TO_LOAD) {
+        var path = BUFFERS_TO_LOAD[name];
+        names.push(name);
+        paths.push(path);
+    }
+    bufferLoader = new BufferLoader(context, paths, function(bufferList) {
+        for (var i = 0; i < bufferList.length; i++) {
+            var buffer = bufferList[i];
+            var name = names[i];
+            BUFFERS[name] = buffer;
+            document.getElementById("btnPlay").disabled=false;
+            document.getElementById("range1").disabled=false;
+        }
+    });
+    bufferLoader.load();
+    
+}  		    
+function play() {
+    gainNode = context.createGainNode();
+    ctl1 = createSource(BUFFERS.drum);
+    ctl2 = createSource(BUFFERS.organ);
+    ctl1.gainNode.gain.value = 0;
+    ctl1.source.noteOn(0);
+    ctl2.source.noteOn(0);    
+    crossfade(document.getElementById("range1"));
+};
+function crossfade(element) {
+    var x = parseInt(element.value) / parseInt(element.max);
+    //使用曲线型交叉混合技术
+    var gain1 = Math.cos(x * 0.5*Math.PI);
+    var gain2 = Math.cos((1.0 - x) * 0.5*Math.PI);
+    ctl1.gainNode.gain.value = gain1;
+    ctl2.gainNode.gain.value = gain2;
+};
+function createSource(buffer) {
+    var source = context.createBufferSource();
+    var gainNode = context.createGainNode();
+    source.buffer = buffer;
+    //循环播放音频
+    source.loop = true;
+    //连接声音源
+    source.connect(gainNode);
+    //连接音频播放设备
+    gainNode.connect(context.destination);
+
+    return {
+      source: source,
+      gainNode: gainNode
+    };
+}	
+function stop() {
+    ctl1.source.noteOff(0);
+    ctl2.source.noteOff(0);
+};	
+function toggle(button) {
+    if(playing)
+    {
+        stop();
+        playing=false;
+        button.value="播放";
+    }
+    else
+    {
+        play();
+        playing=true;
+        button.value="停止";
+    }
+};			    
+</script>
+</head>	
+<body onload="loadBuffers()">	
+<input type="button" id="btnPlay" onclick="toggle(this);" value="播放" disabled/>
+音量: <input type="range" id="range1" min="0" max="100" value="100" onchange="crossfade(this);" disabled/>
+</body>
+</html>
+

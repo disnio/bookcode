@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>   
+<head>   
+<meta charset="UTF-8">  
+<title>Selection对象的removeRange方法的使用示例</title>  
+<script type="text/javascript">
+var rangeToSelect;
+function SelectFirstLine () {
+    var elemToSelect = document.getElementById ("firstLine");
+    var selection = window.getSelection ();
+    rangeToSelect = document.createRange ();
+    rangeToSelect.selectNodeContents (elemToSelect);
+    selection.removeAllRanges ();
+    selection.addRange (rangeToSelect);
+}
+function unSelect(){
+    var selection = window.getSelection ();
+    if(selection.rangeCount>0)
+        selection.removeRange(rangeToSelect);
+}
+</script>
+</head>
+<body>
+<button onclick="SelectFirstLine ();">选取第一行文字</button>
+<button onclick="unSelect ();">取消选取</button>
+<div id="firstLine">第一行文字</div>
+<div>第二行文字</div>
+</body>
